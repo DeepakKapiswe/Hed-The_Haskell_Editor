@@ -1,14 +1,15 @@
 > import Data.Default (def)
 > import Brick
 > import Data.Monoid
-> import Data.Char
 > import Control.Lens
 > import Control.Monad
 > import Control.Monad.Trans
 > import Brick.Widgets.Core
 > import Graphics.Vty
+> import qualified Graphics.Vty as V
 > import qualified TextObj as TO
 > import qualified Yi.Rope as R
+> import Control.DeepSeq
 
 now what is the current state of the editor
 
@@ -17,11 +18,31 @@ now i have made an interface through which i could represent the state of the ac
 now what are you thinking to do 
 
 now i have to think that how can i display my text object to the terminal so that the user could modify it interctively, for that what i need is
- > show cursor at correct position --DONE
- > make the current line always visible i.e support scrolling vertically -- DONE 
- > i have to display such that the longer lines should be broken and incomplete lines should not be shown to the user they should be replaced with   vaccant lines while displaying
+ 1> show cursor at correct position --DONE
+ 2> make the current line always visible i.e support scrolling vertically -- DONE 
+ 3> i have to display such that the longer lines should be broken and incomplete lines should not be shown to the user they should be replaced with   vaccant lines while displaying
+
+> adjustLength :: Int -> R.YiString -> [R.YiString]
+> adjustLength numCols yis =case R.length yis <= numCols of
+>   True -> [yis]
+>   _ -> (R.take numCols yis):(adjustLength numCols (R.drop numCols yis))
 
 
+> mkLineWidget :: R.YiString -> Widget n
+> mkLineWidget s =
+>     Widget Fixed Fixed $ do
+>       c <- getContext
+>       let theLines = (fixEmpty <$>). concat $ softbreak <$> (R.lines' s)
+>           fixEmpty l = case R.null l of
+>                           True -> " "
+>                           _-> R.toString l
+>           softbreak = adjustLength (availWidth c)
+>       case force theLines of
+>           [] -> return def
+>           multiple ->
+>               let lineImgs = lineImg <$> multiple
+>                   lineImg lStr = V.string (c^.attrL) (lStr ++ replicate ((availWidth c) - V.safeWcswidth lStr) ' ')
+>               in return $ def & imageL .~ (V.vertCat lineImgs)
 
 > data Name = EditPad 
 >           | CommandPad
@@ -32,7 +53,7 @@ now i have to think that how can i display my text object to the terminal so tha
 > draw::S-> [Widget Name]
 > draw s = [ed]
 >  where
->   [a,c,b] = txt.R.toText <$> [TO.above s, TO.leftOfC s <> TO.rightOfC s,TO.below s]
+>   [a,c,b] = mkLineWidget <$> [TO.above s, TO.leftOfC s <> TO.rightOfC s,TO.below s]
 >   ed = viewport EditPad Vertical $
 >        Brick.Widgets.Core.showCursor EditPad (Location (col,row)) $
 >        vBox $ [a,visible c,b]
