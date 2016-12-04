@@ -33,7 +33,9 @@ now i have to think that how can i display my text object to the terminal so tha
 > draw s = [ed]
 >  where
 >   [a,c,b] = txt.R.toText <$> [TO.above s, TO.leftOfC s <> TO.rightOfC s,TO.below s]
->   ed = Brick.Widgets.Core.showCursor EditPad (Location (col,row)) .viewport EditPad Vertical . vBox $ [a,visible c,b]
+>   ed = viewport EditPad Vertical $
+>        Brick.Widgets.Core.showCursor EditPad (Location (col,row)) $
+>        vBox $ [a,visible c,b]
 >   (row,col) = TO.cursorPosition s
 
 > myTextObjRenderer::S -> Widget n
