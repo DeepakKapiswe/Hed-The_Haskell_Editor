@@ -17,8 +17,8 @@ now i have made an interface through which i could represent the state of the ac
 now what are you thinking to do 
 
 now i have to think that how can i display my text object to the terminal so that the user could modify it interctively, for that what i need is
- > show cursor at correct position
- > make the current line always visible i.e support scrolling vertically
+ > show cursor at correct position --DONE
+ > make the current line always visible i.e support scrolling vertically -- DONE 
  > i have to display such that the longer lines should be broken and incomplete lines should not be shown to the user they should be replaced with   vaccant lines while displaying
 
 
@@ -30,10 +30,11 @@ now i have to think that how can i display my text object to the terminal so tha
 > type S = TO.TextObj
 
 > draw::S-> [Widget Name]
-> draw s = [ui]
+> draw s = [ed]
 >  where
 >   [a,c,b] = txt.R.toText <$> [TO.above s, TO.leftOfC s <> TO.rightOfC s,TO.below s]
->   ui = viewport EditPad Vertical . vBox $ [a,visible c,b]
+>   ed = Brick.Widgets.Core.showCursor EditPad (Location (col,row)) .viewport EditPad Vertical . vBox $ [a,visible c,b]
+>   (row,col) = TO.cursorPosition s
 
 > myTextObjRenderer::S -> Widget n
 > myTextObjRenderer s = undefined
@@ -42,7 +43,7 @@ now i have to think that how can i display my text object to the terminal so tha
 > app :: App S () Name
 > app = App
 >   { appDraw = draw
->   , appChooseCursor = neverShowCursor
+>   , appChooseCursor = showFirstCursor
 >   , appHandleEvent = handle
 >   , appStartEvent = return
 >   , appAttrMap = def
