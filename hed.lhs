@@ -7,15 +7,12 @@
 > import Control.Monad.Trans
 > import Brick.Widgets.Border
 > import Graphics.Vty
-> import qualified Data.Text.Zipper as Z
+> import qualified TextObj as TO
 
-> type S = Z.TextZipper String
+> type S = TO
 
 > draw::S-> [Widget n]
-> draw s = [(vBox.map str$Z.getText s)]{-vBox <$> [(vBox$str <$> ab),(vBox$str <$> dw)]
->  where
->   ab = Data.TextZipper.above s
->   dw = below s  -}
+> draw s = []
 
 > app :: App S () String
 > app = App
@@ -29,29 +26,20 @@
 > handle s (VtyEvent (EvKey (KChar 'q') [])) = halt s
 > handle s (VtyEvent e) =
 >  let f = case e of
->           EvKey (KChar 'a') [MCtrl] -> Z.gotoBOL
->           EvKey (KChar 'e') [MCtrl] -> Z.gotoEOL
->           EvKey (KChar 'd') [MCtrl] -> Z.deleteChar
->           EvKey (KChar 'k') [MCtrl] -> Z.killToEOL
->           EvKey (KChar 'u') [MCtrl] -> Z.killToBOL
->           EvKey KEnter [] -> Z.breakLine
->           EvKey KDel [] -> Z.deleteChar
->           EvKey (KChar c) [] | c /= '\t' -> Z.insertChar c
->           EvKey KUp [] -> Z.moveUp
->           EvKey KDown [] -> Z.moveDown
->           EvKey KLeft [] -> Z.moveLeft
->           EvKey KRight [] -> Z.moveRight
->           EvKey KBS [] -> Z.deletePrevChar
+>           EvKey (KChar 'a') [MCtrl] -> TO.gotoBOL
+>           EvKey (KChar 'e') [MCtrl] -> TO.gotoEOL
+>           EvKey (KChar 'd') [MCtrl] -> TO.deleteChar
+>           EvKey (KChar 'k') [MCtrl] -> TO.killToEOL
+>           EvKey (KChar 'u') [MCtrl] -> TO.killToBOL
+>           EvKey KEnter [] -> TO.breakLine
+>           EvKey KDel [] -> TO.deleteChar
+>           EvKey (KChar c) [] | c /= '\t' -> TO.insertChar c
+>           EvKey KUp [] -> TO.moveUp
+>           EvKey KDown [] -> TO.moveDown
+>           EvKey KLeft [] -> TO.moveLeft
+>           EvKey KRight [] -> TO.moveRight
+>           EvKey KBS [] -> TO.deletePrevChar
 >           _ -> id
 >  in continue $ f s
-> {-handle s (VtyEvent (EvKey (KChar 'q') [])) = halt (reverse s)
-> --handle s (VtyEvent (EvKey (KChar '1') [])) =  suspendAndResume (outOf s)
-> handle s (VtyEvent (EvKey c [])) = 
->  case c of 
->   KEnter -> continue ("\n":s)
->   KChar c | s/= [] ->  continue ( (head s ++[c]): (tail s))
->   KChar c ->  continue ( [[c]])
-> handle s e = continue s
-> -}
 
-> main = defaultMain app (Z.stringZipper [] Nothing)
+> main = defaultMain app (TO.emptyTO)
