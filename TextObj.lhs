@@ -3,20 +3,12 @@
 
 > module TextObj where
 
+> import HedTypes
 > import qualified Yi.Rope as R
-> import SuffixLenses (suffixLenses)
 > import Lens.Micro   ((^.), (&), (.~), (%~))
 > import Data.Monoid
 > import Data.Char    (isPrint)
 > import qualified Data.Text as T
-
-> data TextObj = TO { above::R.YiString
->                   , leftOfC::R.YiString
->                   , rightOfC::R.YiString
->                   , below::R.YiString
->                   } deriving (Eq,Show)
-
-> suffixLenses ''TextObj
 
 > emptyTO::TextObj
 > emptyTO = TO mempty mempty mempty mempty
@@ -138,7 +130,3 @@
 > killToEOL::TextObj -> TextObj
 > killToEOL = (rightOfCL .~ newLine)
 
-> fromStr::[String]->TextObj
-> fromStr = \case
->   [] -> emptyTO
->   (x:y) -> TO mempty (R.fromString x) mempty (mconcat$R.fromString <$> y)
