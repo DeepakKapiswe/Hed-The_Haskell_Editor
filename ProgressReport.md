@@ -1,4 +1,3 @@
-
 --------------------------------------------------------------------------------------------------------------------------------------------------
 4-12-2016
 
@@ -25,6 +24,11 @@ now i have done the 3rd above mentioned point but now a new porblem i am facing 
 
 
 now i have separated all the functions according to their group of functionality and made a modular model to start work and have focus only on current working problem this would help me for dealing with separate problems separately
+
+>> next work
+
+next I have to Implement separate section model for the UI like editor part , status part and Commandbar part and provide a mechanism so that user could change the focus to the desired tab and status bar should show always the current status like file name, current line number , cursor position.
+
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------
