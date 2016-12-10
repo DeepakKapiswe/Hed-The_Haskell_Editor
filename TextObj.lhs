@@ -11,7 +11,7 @@
 > import qualified Data.Text as T
 
 > emptyTO::TextObj
-> emptyTO = TO mempty mempty mempty mempty
+> emptyTO = TO mempty mempty mempty mempty NoName
 
 > getText::TextObj -> T.Text
 > getText = R.toText.getYiString
@@ -34,7 +34,7 @@
 > moveLeft tObj | left == mempty = tObj
 >               | otherwise = let (left',r') = R.splitAt (col-1) left
 >                                 right' = r' <> (tObj ^. rightOfCL)
->                             in  (leftOfCL .~ left').(rightOfCL .~ right') $ tObj
+>                             in  tObj & (leftOfCL .~ left').(rightOfCL .~ right')
 >  where col = R.length left
 >        left = (tObj ^.leftOfCL)
 
@@ -50,7 +50,7 @@
 >             | otherwise = let (above',x) = R.splitAtLine (row-1) (tObj ^.aboveL)
 >                               (left',right') = R.splitAt (if col < R.length x then col else (R.length x -1)) x
 >                               below' = (tObj ^.leftOfCL) <> (tObj ^. rightOfCL) <> (tObj ^. belowL)
->                           in  (TO  above' left' right' below')
+>                           in  tObj & (belowL .~ below').(aboveL .~ above').(leftOfCL .~ left').(rightOfCL .~ right')
 >  where (row,col) = cursorPosition tObj
 
 > moveDown :: TextObj -> TextObj
@@ -58,7 +58,7 @@
 >               | otherwise = let (x,below') = R.splitAtLine 1 (tObj ^.belowL)
 >                                 (left',right') = R.splitAt (if col < R.length x then col else (R.length x -1)) x
 >                                 above' = (tObj ^.aboveL)<> (tObj ^.leftOfCL) <> (tObj ^. rightOfCL)
->                             in  (TO  above' left' right' below')
+>                             in  tObj & (belowL .~ below').(aboveL .~ above').(leftOfCL .~ left').(rightOfCL .~ right')
 >  where col = R.length $ (tObj ^. leftOfCL)
 
 > moveCursor::(Int,Int) -> TextObj ->TextObj
@@ -67,7 +67,7 @@
 >      (above',rest) = R.splitAtLine nRow yiStr
 >      (below',curr) = R.splitAtLine 1 rest
 >      (left',right') = R.splitAt nCol curr
->  in  (TO  above' left' right' below')
+>  in  tObj & (belowL .~ below').(aboveL .~ above').(leftOfCL .~ left').(rightOfCL .~ right')
 
 -----------------------------------------------------------------------------------------
 

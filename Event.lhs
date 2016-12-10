@@ -6,11 +6,13 @@
 > import Data.Monoid
 > import Control.Lens
 > import Graphics.Vty
+> import qualified Brick.Focus as F
 
 > handle:: HT.TextObj -> BrickEvent t t1 -> EventM n (Next HT.TextObj)
-> handle s (VtyEvent (EvKey (KChar 'q') [])) = halt s
-> handle s (VtyEvent e) =
->  let f = case e of
+> handle st (VtyEvent (EvKey (KChar 'q') [])) = halt st
+> handle st (VtyEvent e) = continue $ (applyEdit e) st
+>
+> applyEdit e = case e of
 >           EvKey (KChar 'a') [MCtrl] -> TO.gotoBOL
 >           EvKey (KChar 'e') [MCtrl] -> TO.gotoEOL
 >           EvKey (KChar 'd') [MCtrl] -> TO.deleteChar
@@ -25,5 +27,13 @@
 >           EvKey KRight [] -> TO.moveRight
 >           EvKey KBS [] -> TO.deletePrevChar
 >           _ -> id
->  in continue $ f s
 
+
+> handleEditor::HT.EditorObj -> BrickEvent t t1 -> EventM n (Next HT.EditorObj)
+> handleEditor st (VtyEvent (EvKey (KChar 'q') [])) = halt st
+> handleEditor st (VtyEvent (EvKey  (KChar '\t') [])) = continue $ st & HT.focusRingL %~ F.focusNext
+> handleEditor st (VtyEvent e) = case (F.focusGetCurrent $ st ^. HT.focusRingL) of 
+>  Just HT.EditPad -> continue $ st & (HT.editTextObjL %~ (applyEdit e))
+>  Just HT.CommandPad -> continue $ st & (HT.commandObjL %~ (applyEdit e))
+>  _ {-Just HT.NoName-} -> continue st
+>
