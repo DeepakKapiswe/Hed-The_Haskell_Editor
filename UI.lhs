@@ -77,7 +77,7 @@
 
 
 > -- | Map of Attributes to be used when rendering
-> theMap :: A.AttrMap
+> theMap::A.AttrMap
 > theMap = A.attrMap V.defAttr [("edit", V.black `on` V.yellow),("status", V.white `on` V.black),("command",V.white `on` V.red),("focussed",V.white `on` V.blue)]
 
 > -- | convenience function to show cursor which currently have focus
