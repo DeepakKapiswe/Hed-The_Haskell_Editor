@@ -8,8 +8,7 @@
 > import SuffixLenses (suffixLenses)
 > import qualified Brick.Focus as F
 > import Brick.Widgets.Core (Named(..))
->
->
+
 > data Name = EditPad
 >           | CommandPad
 >           | StatusPad
@@ -25,15 +24,17 @@
 > instance Named TextObj Name where
 >  getName = name
 
-
 > data EditorObj = EO { focusRing::F.FocusRing Name
 >                     , editTextObj::TextObj
 >                     , commandObj::TextObj
 >                     , otherObj::TextObj
 >                     , info::String
 >                     , msg :: [String]
->                     , buffer::[R.YiString]
->                     } --deriving (Eq,Show)
+>                     , buffer::Buffer R.YiString
+>                     }
+
+> data Buffer a = Buffer {b1::a,b2::a,b3::a,b4::a,b5::a}
 
 > suffixLenses ''TextObj
 > suffixLenses ''EditorObj
+> suffixLenses ''Buffer

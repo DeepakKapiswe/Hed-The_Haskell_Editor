@@ -65,9 +65,10 @@
 > moveCursor (nRow,nCol) tObj =
 >  let yiStr = getYiString tObj
 >      (above',rest) = R.splitAtLine nRow yiStr
->      (below',curr) = R.splitAtLine 1 rest
->      (left',right') = R.splitAt nCol curr
->  in  tObj & (belowL .~ below').(aboveL .~ above').(leftOfCL .~ left').(rightOfCL .~ right')
+>      (curr,below') = R.splitAtLine 1 rest
+>      c =if R.length curr > nCol then nCol else (R.length curr -1)
+>      (left',right') = R.splitAt c curr
+>  in tObj & (leftOfCL .~ left').(rightOfCL .~ right').(belowL .~ below').(aboveL .~ above')
 
 -----------------------------------------------------------------------------------------
 
@@ -130,3 +131,20 @@
 > killToEOL::TextObj -> TextObj
 > killToEOL = (rightOfCL .~ newLine)
 
+> getNextnChars::Int->TextObj-> R.YiString
+> getNextnChars n tObj = R.take n (tObj ^. rightOfCL <> tObj ^. belowL)
+
+> getPrevnChars::Int->TextObj-> R.YiString
+> getPrevnChars n tObj = R.take n (tObj ^. aboveL <> tObj ^. leftOfCL)
+
+
+> delNextnChars::Int->TextObj -> (R.YiString,TextObj)
+> delNextnChars n tObj = let (discarded,rest) = R.splitAt n (tObj ^. rightOfCL <> tObj ^. belowL)
+>                            (right',below')  = R.splitAtLine 1 rest
+>                        in  (discarded,tObj & (rightOfCL .~ right').(belowL .~ below'))
+
+> delPrevnChars::Int->TextObj -> (R.YiString,TextObj)
+> delPrevnChars n tObj = let (discarded,rest) = R.splitAt n (tObj ^. aboveL <> tObj ^. leftOfCL)
+>                            n = R.countNewLines rest
+>                            (above',left')  = R.splitAtLine (n-1) rest
+>                        in  (discarded,tObj & (leftOfCL .~ left').(aboveL .~ above'))

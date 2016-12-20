@@ -19,8 +19,6 @@
 > import qualified Brick.AttrMap as A
 > import qualified Brick.Focus as F
 
-> type S = HT.TextObj
-
 
 > -- |dispCursor function which will appropriately calculate the correct cursor
 > --  position according to the current available width for the widget
@@ -29,7 +27,7 @@
 > dispCursor n (grow,gcol) p =
 >                  Widget Fixed Fixed $ do
 >                          result <- render p
->                          let sz = (result ^.imageL.to V.imageWidth,result ^.imageL.to V.imageHeight)
+>                          let sz = (result ^.imageL.to V.imageWidth,result ^.imageL.to V.imageHeight-2)
 >                          return $ result & cursorsL %~ (CursorLocation (Location (f (grow,gcol) sz)) (Just n):)
 >  where
 >   f (gr,gc) (ac,ar) |ac== 0 = def
@@ -78,7 +76,11 @@
 
 > -- | Map of Attributes to be used when rendering
 > theMap::A.AttrMap
-> theMap = A.attrMap V.defAttr [("edit", V.black `on` V.yellow),("status", V.white `on` V.black),("command",V.white `on` V.red),("focussed",V.white `on` V.blue)]
+> theMap = A.attrMap V.defAttr 
+>      [("edit", V.white `on` V.blue)
+>      ,("status", flip V.withStyle V.bold $V.white `on` V.black)
+>      ,("command",def )        --V.white `on` V.red)
+>      ,("focussed",V.white `on` V.blue)]
 
 > -- | convenience function to show cursor which currently have focus
 > --   among all the resources

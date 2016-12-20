@@ -1,6 +1,7 @@
 > module Event where
 > import qualified HedTypes as HT
 > import qualified TextObj as TO
+> import qualified CommandInterpreter as CI
 
 > import Brick
 > import Data.Monoid
@@ -18,6 +19,7 @@
 >           EvKey (KChar 'd') [MCtrl] -> TO.deleteChar
 >           EvKey (KChar 'k') [MCtrl] -> TO.killToEOL
 >           EvKey (KChar 'u') [MCtrl] -> TO.killToBOL
+>           EvKey (KChar 'p') [MCtrl] -> snd.TO.delNextnChars 9
 >           EvKey KEnter [] -> TO.breakLine
 >           EvKey KDel [] -> TO.deleteChar
 >           EvKey (KChar c) [] | c /= '\t' -> TO.insertChar c
@@ -34,6 +36,9 @@
 > handleEditor st (VtyEvent (EvKey  (KChar '\t') [])) = continue $ st & HT.focusRingL %~ F.focusNext
 > handleEditor st (VtyEvent e) = case (F.focusGetCurrent $ st ^. HT.focusRingL) of 
 >  Just HT.EditPad -> continue $ st & (HT.editTextObjL %~ (applyEdit e))
->  Just HT.CommandPad -> continue $ st & (HT.commandObjL %~ (applyEdit e))
+>  Just HT.CommandPad -> continue $ case e of 
+>                                    (EvKey KEnter []) -> let s =(st & (HT.commandObjL %~ (applyEdit e)))
+>                                                         in s & CI.evalCommand st
+>                                    _ -> st & (HT.commandObjL %~ (applyEdit e))
 >  _ {-Just HT.NoName-} -> continue st
 >
