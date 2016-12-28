@@ -6,6 +6,7 @@
 > import qualified TextObj as T
 > import qualified Buffer as B
 > import HedTypes
+> import Commands
 
 > import Lens.Micro   ((^.), (&), (.~), (%~))
 > import qualified Yi.Rope as R
@@ -16,10 +17,9 @@
 > interpretCommand::String->TransformEditor
 > interpretCommand s = case words s of
 >  ["goto",x,y] -> E.gotoLocation (read x::Int,read y::Int)
->  ["ins"] -> \x-> let y = B.getDefBufContents $ x ^. bufferL
->                  in x & E.insertText y
->  ["ins",bufn] -> \x-> let y = B.getBufnContents (read bufn::Int) $ x ^. bufferL
->                  in x & E.insertText y
+>  ["ins"] -> insBeforeCur
+> -- ["ins",bufn] -> \x-> let y = B.getBufnContents (read bufn::Int) $ x ^. bufferL
+> --                 in x & insBeforeCur y
 >  ["yank"] -> \x-> let y = T.currentLine $ x ^. editTextObjL
 >                   in x & bufferL %~ (B.setDefBufContents y)
 >  ["yank",nChars] -> \x-> let y = T.getNextnChars  (read nChars::Int) $ x ^. editTextObjL

@@ -2,6 +2,7 @@
 > import qualified HedTypes as HT
 > import qualified TextObj as TO
 > import qualified CommandInterpreter as CI
+> import qualified Commands as C
 
 > import Brick
 > import Data.Monoid
@@ -19,6 +20,8 @@
 >           EvKey (KChar 'd') [MCtrl] -> TO.deleteChar
 >           EvKey (KChar 'k') [MCtrl] -> TO.killToEOL
 >           EvKey (KChar 'u') [MCtrl] -> TO.killToBOL
+>           EvKey (KChar 'z') [MCtrl] -> TO.deleteCurrLine
+>           EvKey (KChar 'n') [MCtrl] -> TO.insNewLine
 >           EvKey (KChar 'p') [MCtrl] -> snd.TO.delNextnChars 9
 >           EvKey KEnter [] -> TO.breakLine
 >           EvKey KDel [] -> TO.deleteChar
@@ -30,12 +33,23 @@
 >           EvKey KBS [] -> TO.deletePrevChar
 >           _ -> id
 
+> applyEditorCommand::Event->HT.EditorObj->HT.EditorObj
+> applyEditorCommand e = case e of
+>           EvKey (KChar 'c') [MMeta] -> C.copyCurrentLineDefBuf
+>           EvKey (KChar 'e') [MMeta] -> C.copyTillEOL
+>           EvKey (KChar 'a') [MMeta] -> C.copyTillBOL
+>           EvKey (KChar 'v') [MCtrl] -> C.insBeforeCur
+>           EvKey (KChar 'v') [MMeta] -> C.insAfterCur
+>           EvKey (KChar 'v') [MMeta,MCtrl] -> C.insInNewLineBeforeCurr
+>           _-> HT.editTextObjL %~ (applyEdit e)
+>
 
 > handleEditor::HT.EditorObj -> BrickEvent t t1 -> EventM n (Next HT.EditorObj)
 > handleEditor st (VtyEvent (EvKey (KChar 'q') [])) = halt st
+> handleEditor st (VtyEvent (EvKey (KChar 's') [MCtrl])) = suspendAndResume (C.saveFile st)
 > handleEditor st (VtyEvent (EvKey  (KChar '\t') [])) = continue $ st & HT.focusRingL %~ F.focusNext
 > handleEditor st (VtyEvent e) = case (F.focusGetCurrent $ st ^. HT.focusRingL) of 
->  Just HT.EditPad -> continue $ st & (HT.editTextObjL %~ (applyEdit e))
+>  Just HT.EditPad -> continue $ st & applyEditorCommand e
 >  Just HT.CommandPad -> continue $ case e of 
 >                                    (EvKey KEnter []) -> let s =(st & (HT.commandObjL %~ (applyEdit e)))
 >                                                         in s & CI.evalCommand st

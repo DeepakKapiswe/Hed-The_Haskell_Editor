@@ -21,8 +21,6 @@
 >
 > gotoLocation::(Int,Int)->EditorObj -> EditorObj
 > gotoLocation (r,c) e = e & (editTextObjL %~ (moveCursor (r,c)))
->
-> -- | takes a YIString and insert it after the cursor position
-> --   of the editTextObj and updates the cursorposition respectively
-> insertText::R.YiString -> EditorObj ->EditorObj
-> insertText txt e = e & (editTextObjL %~ (insertMany txt))
+
+
+

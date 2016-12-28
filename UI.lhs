@@ -13,6 +13,7 @@
 > import Control.Monad.State
 > import Control.Monad.Trans
 > import Brick.Widgets.Core
+> import Brick.Widgets.Center
 > import qualified Graphics.Vty as V
 > import qualified Yi.Rope as R
 > import Control.DeepSeq
@@ -66,9 +67,9 @@
 > drawEditorObj::HT.EditorObj -> [Widget HT.Name]
 > drawEditorObj eo = [ui]
 >  where
->   ui = edpad <=>edstatus<=>edcomLine
+>   ui = vBox[edpad,edstatus,edcomLine]
 >   edpad = withAttr "edit" $drawTextObj (currFocus == (Just HT.EditPad)) (eo^.HT.editTextObjL)
->   edstatus = v$withAttr "status" $ str ((eo ^. HT.infoL) <> "   HED ~ The Haskell Editor   " <> (show.TO.cursorPosition$eo^.HT.editTextObjL))
+>   edstatus = v$hCenterWith (Just '*').withAttr "status" $ str ((eo ^. HT.infoL) <> "   HED ~ The Haskell Editor   " <> (show.TO.cursorPosition$eo^.HT.editTextObjL))
 >   edcomLine= v$withAttr "command" $ drawTextObj (currFocus== (Just HT.CommandPad)) (eo^.HT.commandObjL)
 >   v = vLimit 1 . visible
 >   currFocus = F.focusGetCurrent$ eo ^. HT.focusRingL

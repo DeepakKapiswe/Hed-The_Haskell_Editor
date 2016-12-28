@@ -22,7 +22,6 @@ now i have done the 3rd above mentioned point but now a new porblem i am facing 
 
 6-12-2016 08:45 pm
 
-
 now i have separated all the functions according to their group of functionality and made a modular model to start work and have focus only on current working problem this would help me for dealing with separate problems separately
 
 >> next work
@@ -35,6 +34,46 @@ next I have to Implement separate section model for the UI like editor part , st
 now I have implemented the above mentioned point completely
 
 >> Next Work
+
+To implement seperate commandLine Interpreter which will interpret simple commands like delete,yank,insert etc 
+
+now I have implemented all above mentioned commands but for interpretation parser is not quite well I have to improve it.
+
+-- ------------------------------------------------------------------------------------------------------------
+
+20/12/2016  09:00 pm
+
+>> Next Work 
+
+to add simple editing feauters with key strokes so that it could be used by me as an editor !!
+ok we will add features of an editor ...so list them specifically as per need:~
+__+
+ 1) copy line                   ==
+ 2) copy till line end          ==
+ 3) copy till line begining     ==
+ 4) copy current word
+ 5) copy previous word
+ 6) copy next word
+ 7) paste after cursor          ==
+ 8) paste before cusor          ==
+ 9) paste in newline below      ==
+10) delete current word
+11) delete till end of the word
+12) delete till begin of the word
+13) delete next word
+14) delete prev word
+15) delete current line         ==
+16) pageUP
+17) pageDown
+18) breakline after end of line ==
+19) open a file for editing     ==
+20) writing changes to file(save) ==
+__c__c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c
+
+28/12/2016 08:00 pm
+
+now I have implemented above features which are marked with (==) sign.now I have to implement rest features as time permits
+
 
 
 

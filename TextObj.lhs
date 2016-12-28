@@ -7,26 +7,47 @@
 > import qualified Yi.Rope as R
 > import Lens.Micro   ((^.), (&), (.~), (%~))
 > import Data.Monoid
+> import Data.Maybe   (fromMaybe)
 > import Data.Char    (isPrint)
 > import qualified Data.Text as T
 
 > emptyTO::TextObj
 > emptyTO = TO mempty mempty mempty mempty NoName
 
+> -- | creates a TextObj from the given String 
+
+> makeTO::String->TextObj
+> makeTO s = emptyTO & (rightOfCL .~r).(belowL .~b)
+>  where y = R.fromString s
+>        (r,b) = R.splitAtLine 1 y
+
+> -- | Gives the text from the  Textobj in Text form
+
 > getText::TextObj -> T.Text
 > getText = R.toText.getYiString
+
+> -- | Gives the text from the  Textobj in YiString form
 
 > getYiString::TextObj -> R.YiString
 > getYiString = mconcat .([above,leftOfC,rightOfC,below] <*>). pure
 
-> cursorPosition::TextObj -> (Int,Int) ---- (row,col)
+
+> -- | Gives Current Cursor Postion from the TextObj as (row,col)
+
+> cursorPosition::TextObj -> (Int,Int)
 > cursorPosition t = (R.countNewLines $ t ^. aboveL, R.length $ t ^. leftOfCL )
+
+> -- | Checks whether the TextObj is at Top
 
 > isTopLine::TextObj -> Bool
 > isTopLine = R.null.above
 
+> -- | Checks whether the TextObj is at Bottom
+
 > isBotLine::TextObj -> Bool
 > isBotLine = R.null.below
+
+-----------------------------------------------------------------------------------------
 
 > -- |cursor movement functions
 
@@ -61,6 +82,9 @@
 >                             in  tObj & (belowL .~ below').(aboveL .~ above').(leftOfCL .~ left').(rightOfCL .~ right')
 >  where col = R.length $ (tObj ^. leftOfCL)
 
+> -- | Move the cursor to the specified location if possible
+> --   else moves to the most relavent postion
+
 > moveCursor::(Int,Int) -> TextObj ->TextObj
 > moveCursor (nRow,nCol) tObj =
 >  let yiStr = getYiString tObj
@@ -85,8 +109,19 @@
 >  x |isPrint x -> leftOfCL %~ (<> R.singleton x)
 >  _->id
 
-> insertMany::R.YiString ->TextObj ->TextObj
-> insertMany cp = leftOfCL %~ (<> R.filter (isPrint) cp)
+> -- | insert many characters before the current cursor postion
+
+> insertManyBefore::R.YiString ->TextObj ->TextObj
+> insertManyBefore cp = leftOfCL %~ (<> R.filter (isPrint) cp)
+
+> -- | insert many characters after the current cursor postion
+
+> insertManyAfter::R.YiString ->TextObj ->TextObj
+> insertManyAfter cp = rightOfCL %~ (R.filter (isPrint) cp <>)
+
+> insertInNewLine::R.YiString ->TextObj->TextObj
+> insertInNewLine c = insertManyBefore c .insNewLine
+
 
 > -- |Delete the character preceding the cursor position, and move the
 > -- cursor backwards by one character.
@@ -119,6 +154,11 @@
 >   rt = t ^. rightOfCL
 > newLine = R.singleton '\n'
 
+> -- | delete the current line
+
+> deleteCurrLine::TextObj ->TextObj
+> deleteCurrLine = deleteChar.killToEOL.killToBOL
+
 > gotoEOL::TextObj -> TextObj
 > gotoEOL t= t & moveRight.moveLeft.(rightOfCL .~ mempty).(leftOfCL %~ (<> t ^. rightOfCL))
 
@@ -148,3 +188,13 @@
 >                            n = R.countNewLines rest
 >                            (above',left')  = R.splitAtLine (n-1) rest
 >                        in  (discarded,tObj & (leftOfCL .~ left').(aboveL .~ above'))
+
+> getTillEOL::TextObj -> R.YiString
+> getTillEOL = fromMaybe mempty .R.init.(^.rightOfCL)
+
+> getTillBOL::TextObj -> R.YiString
+> getTillBOL = (^.leftOfCL)
+
+> insNewLine::TextObj -> TextObj
+> insNewLine = breakLine.gotoEOL
+
