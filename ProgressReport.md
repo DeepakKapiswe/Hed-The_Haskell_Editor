@@ -47,28 +47,27 @@ now I have implemented all above mentioned commands but for interpretation parse
 
 to add simple editing feauters with key strokes so that it could be used by me as an editor !!
 ok we will add features of an editor ...so list them specifically as per need:~
-__+
- 1) copy line                   ==
- 2) copy till line end          ==
- 3) copy till line begining     ==
- 4) copy current word
- 5) copy previous word
- 6) copy next word
- 7) paste after cursor          ==
- 8) paste before cusor          ==
- 9) paste in newline below      ==
-10) delete current word
-11) delete till end of the word
-12) delete till begin of the word
-13) delete next word
-14) delete prev word
-15) delete current line         ==
-16) pageUP
-17) pageDown
-18) breakline after end of line ==
-19) open a file for editing     ==
-20) writing changes to file(save) ==
-__c__c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c_c
+____
+ 1) copy line                     ==
+ 2) copy till line end            ==
+ 3) copy till line begining       ==
+ 4) copy current word             ==
+ 5) paste after cursor            ==
+ 6) paste before cusor            ==
+ 7) paste in newline below        ==
+08) delete current word           ==
+09) delete till end of the word   ==
+10) delete till begin of the word ==
+11) delete current line           ==
+12) insert a new line             ==
+13) open a file for editing       ==
+14) writing changes to file(save) ==
+15) jump to end of word           ==
+16) jump to begining of word      ==
+17) quit or exit                  ==
+00) pageUP
+00) pageDown
+19
 
 28/12/2016 08:00 pm
 
