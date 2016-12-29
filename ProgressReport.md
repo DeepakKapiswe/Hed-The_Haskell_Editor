@@ -39,39 +39,48 @@ To implement seperate commandLine Interpreter which will interpret simple comman
 
 now I have implemented all above mentioned commands but for interpretation parser is not quite well I have to improve it.
 
--- ------------------------------------------------------------------------------------------------------------
+--- ------------------------------------------------------------------------------------------------------------
 
 20/12/2016  09:00 pm
 
->> Next Work 
+>> Next Work
 
 to add simple editing feauters with key strokes so that it could be used by me as an editor !!
 ok we will add features of an editor ...so list them specifically as per need:~
-____
- 1) copy line                     ==
- 2) copy till line end            ==
- 3) copy till line begining       ==
- 4) copy current word             ==
- 5) paste after cursor            ==
- 6) paste before cusor            ==
- 7) paste in newline below        ==
-08) delete current word           ==
-09) delete till end of the word   ==
-10) delete till begin of the word ==
-11) delete current line           ==
-12) insert a new line             ==
-13) open a file for editing       ==
-14) writing changes to file(save) ==
-15) jump to end of word           ==
-16) jump to begining of word      ==
-17) quit or exit                  ==
-00) pageUP
-00) pageDown
+
+ 1> copy line                     ==
+ 2> copy till line end            ==
+ 3> copy till line begining       ==
+ 4> copy current word             ==
+ 5> paste after cursor            ==
+ 6> paste before cusor            ==
+ 7> paste in newline below        ==
+08> delete current word           ==
+09> delete till end of the word   ==
+10> delete till begin of the word ==
+11> delete current line           ==
+12> insert a new line             ==
+13> open a file for editing       ==
+14> writing changes to file(save) ==
+15> jump to end of word           ==
+16> jump to begining of word      ==
+17> quit or exit                  ==
+00> pageUP
+00> pageDown
 19
+
+---------------------------------------------------------------------------------------------------------------
 
 28/12/2016 08:00 pm
 
 now I have implemented above features which are marked with (==) sign.now I have to implement rest features as time permits
+most importantly
+ *> fast navigation
+ *> Search Implementation
+ *> Replace Implementation
+ *> undo Implementation
+ *> auto word completion Implementation
+ *> syntax highlighting 
 
 
 
