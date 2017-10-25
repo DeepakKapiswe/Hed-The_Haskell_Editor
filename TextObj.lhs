@@ -8,49 +8,42 @@
 > import Lens.Micro   ((^.), (&), (.~), (%~))
 > import Data.Monoid
 > import Data.Maybe   (fromMaybe)
-> import Data.Char    (isPrint)
+> import Data.Char   (isPrint,isSpace,isControl)
 > import qualified Data.Text as T
 
 > emptyTO::TextObj
 > emptyTO = TO mempty mempty mempty mempty NoName
 
 > -- | creates a TextObj from the given String 
-
 > makeTO::String->TextObj
 > makeTO s = emptyTO & (rightOfCL .~r).(belowL .~b)
 >  where y = R.fromString s
 >        (r,b) = R.splitAtLine 1 y
 
 > -- | Gives the text from the  Textobj in Text form
-
 > getText::TextObj -> T.Text
 > getText = R.toText.getYiString
 
 > -- | Gives the text from the  Textobj in YiString form
-
 > getYiString::TextObj -> R.YiString
 > getYiString = mconcat .([above,leftOfC,rightOfC,below] <*>). pure
 
 
 > -- | Gives Current Cursor Postion from the TextObj as (row,col)
-
 > cursorPosition::TextObj -> (Int,Int)
 > cursorPosition t = (R.countNewLines $ t ^. aboveL, R.length $ t ^. leftOfCL )
 
 > -- | Checks whether the TextObj is at Top
-
 > isTopLine::TextObj -> Bool
 > isTopLine = R.null.above
 
 > -- | Checks whether the TextObj is at Bottom
-
 > isBotLine::TextObj -> Bool
 > isBotLine = R.null.below
 
 -----------------------------------------------------------------------------------------
 
 > -- |cursor movement functions
-
 > moveLeft :: TextObj -> TextObj
 > moveLeft tObj | left == mempty = tObj
 >               | otherwise = let (left',r') = R.splitAt (col-1) left
@@ -84,7 +77,6 @@
 
 > -- | Move the cursor to the specified location if possible
 > --   else moves to the most relavent postion
-
 > moveCursor::(Int,Int) -> TextObj ->TextObj
 > moveCursor (nRow,nCol) tObj =
 >  let yiStr = getYiString tObj
@@ -109,23 +101,23 @@
 >  x |isPrint x -> leftOfCL %~ (<> R.singleton x)
 >  _->id
 
-> -- | insert many characters before the current cursor postion
-
+> -- | Insert many characters before the current cursor postion
 > insertManyBefore::R.YiString ->TextObj ->TextObj
 > insertManyBefore cp = leftOfCL %~ (<> R.filter (isPrint) cp)
 
-> -- | insert many characters after the current cursor postion
-
+> -- | Insert many characters after the current cursor postion
 > insertManyAfter::R.YiString ->TextObj ->TextObj
 > insertManyAfter cp = rightOfCL %~ (R.filter (isPrint) cp <>)
 
+> -- | Insert many characters in the next line
 > insertInNewLine::R.YiString ->TextObj->TextObj
 > insertInNewLine c = insertManyBefore c .insNewLine
 
+> insNewLine::TextObj -> TextObj
+> insNewLine = breakLine.gotoEOL
 
-> -- |Delete the character preceding the cursor position, and move the
+> -- | Delete the character preceding the cursor position, and move the
 > -- cursor backwards by one character.
-
 > deletePrevChar ::TextObj -> TextObj
 > deletePrevChar t =
 >  case (lt==mempty) of
@@ -138,10 +130,9 @@
 >   lt = t ^. leftOfCL
 >   row = R.countNewLines (t ^. aboveL)
 
-> -- |Delete the character at the cursor position.  Leaves the cursor
-> -- position unchanged.  If the cursor is at the end of a line of textObject,
-> -- this combines the line with the line below.
-
+> -- | Delete the character at the cursor position.  Leaves the cursor
+> --   position unchanged.  If the cursor is at the end of a line of 
+> --   textObj, this combines the line with the line below.
 > deleteChar ::TextObj -> TextObj
 > deleteChar t =
 >    case (rt ==mempty) of
@@ -155,28 +146,72 @@
 > newLine = R.singleton '\n'
 
 > -- | delete the current line
-
 > deleteCurrLine::TextObj ->TextObj
 > deleteCurrLine = deleteChar.killToEOL.killToBOL
 
-> gotoEOL::TextObj -> TextObj
-> gotoEOL t= t & moveRight.moveLeft.(rightOfCL .~ mempty).(leftOfCL %~ (<> t ^. rightOfCL))
-
+> -- | moves cursor to End of current Line
 > gotoBOL::TextObj -> TextObj
 > gotoBOL t= t & (leftOfCL .~ mempty).(rightOfCL %~ ( t ^. leftOfCL <>))
 
+> -- | moves cursor to End of current Line
+> gotoEOL::TextObj -> TextObj
+> gotoEOL t= t & moveRight.moveLeft.(rightOfCL .~ mempty).(leftOfCL %~ (<> t ^. rightOfCL))
+
+> -- | moves cursor to End of current Word or last
+> --   space character if there are spaces
+> gotoEOW::TextObj->TextObj
+> gotoEOW t= let (l',r') = R.span (\x->(x/=' ') && (x/='\n')) (t^.rightOfCL)
+>                (l'',r'') |l' /= mempty || r' == mempty || r'==newLine = (l',r')
+>                          |otherwise = let (l''',r''') = R.span (\x->(x==' ') && (x/='\n')) r'
+>                                       in (l'<>l''',r''')
+>            in  t & (leftOfCL %~ (<> l'')).(rightOfCL .~ r'')
+
+> -- | moves cursor to Begining of current Word or first
+> --   space character if there are spaces
+> gotoBOW::TextObj->TextObj
+> gotoBOW t= let (r',l') = backspan (/=' ') (t^.leftOfCL)
+>                (l'',r'') |r' /= mempty || l'== mempty = (l',r')
+>                          |otherwise = let (r''',l''') = backspan (==' ') l'
+>                                       in (l''',r'<>r''')
+>            in  t & (leftOfCL .~  l'').(rightOfCL %~ (r''<>))
+>  where backspan p t= (R.takeWhileEnd p t,R.dropWhileEnd p t)
+
+> -- | Delete untill Begining of Line
 > killToBOL::TextObj -> TextObj
 > killToBOL = (leftOfCL .~ mempty)
 
+> -- | Delete till End of Line
 > killToEOL::TextObj -> TextObj
 > killToEOL = (rightOfCL .~ newLine)
+
+> -- | Delete till Begining of current Word or first
+> --   space character if there are spaces
+> killToBOW::TextObj -> TextObj
+> killToBOW tObj = let l = tObj ^.leftOfCL
+>                      l' | l==mempty = l
+>                         | R.dropWhileEnd (/= ' ') l ==l = R.dropWhileEnd (== ' ') l
+>                         | otherwise = R.dropWhileEnd (/= ' ') l
+>                  in tObj & leftOfCL .~ l'
+
+> -- | Delete till End of current Word or last
+> --   space character if there are spaces
+> killToEOW::TextObj -> TextObj
+> killToEOW tObj = let r = tObj ^.rightOfCL
+>                      r' | r==mempty || r==newLine = r
+>                         | R.dropWhile (\x-> (x /= ' ') && (x /= '\n')) r ==r = R.dropWhile (\x-> (x == ' ') && (x /= '\n')) r
+>                         | otherwise = R.dropWhile (\x->(x /= ' ') && (x /= '\n')) r
+>                  in tObj & rightOfCL .~ r'
+
+
+> -- | Delete current word at cursor
+> killCurrWord::TextObj ->TextObj
+> killCurrWord = killToBOW.killToEOW
 
 > getNextnChars::Int->TextObj-> R.YiString
 > getNextnChars n tObj = R.take n (tObj ^. rightOfCL <> tObj ^. belowL)
 
 > getPrevnChars::Int->TextObj-> R.YiString
 > getPrevnChars n tObj = R.take n (tObj ^. aboveL <> tObj ^. leftOfCL)
-
 
 > delNextnChars::Int->TextObj -> (R.YiString,TextObj)
 > delNextnChars n tObj = let (discarded,rest) = R.splitAt n (tObj ^. rightOfCL <> tObj ^. belowL)
@@ -189,12 +224,16 @@
 >                            (above',left')  = R.splitAtLine (n-1) rest
 >                        in  (discarded,tObj & (leftOfCL .~ left').(aboveL .~ above'))
 
+
+> -- | Gives current word empty if cursor is at space
+> getCurrWord::TextObj -> R.YiString
+> getCurrWord t = let (l,r) = (R.takeWhileEnd p (t ^.leftOfCL),R.takeWhile p (t ^.rightOfCL))
+>                     p  = \x->not (isSpace x ||isControl x)
+>                 in l<>r
+
 > getTillEOL::TextObj -> R.YiString
 > getTillEOL = fromMaybe mempty .R.init.(^.rightOfCL)
 
 > getTillBOL::TextObj -> R.YiString
 > getTillBOL = (^.leftOfCL)
-
-> insNewLine::TextObj -> TextObj
-> insNewLine = breakLine.gotoEOL
 

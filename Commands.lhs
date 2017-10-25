@@ -15,6 +15,10 @@
 
 > --type TransformEditor = EditorObj -> EditorObj
 
+> copyCurrentWordDefBuf::EditorObj -> EditorObj
+> copyCurrentWordDefBuf x = let y = T.getCurrWord $ x ^. editTextObjL
+>                           in x & bufferL %~ (B.setDefBufContents y)
+
 > copyCurrentLineDefBuf::EditorObj -> EditorObj
 > copyCurrentLineDefBuf x = let y = T.currentLine $ x ^. editTextObjL
 >                           in x & bufferL %~ (B.setDefBufContents y)
