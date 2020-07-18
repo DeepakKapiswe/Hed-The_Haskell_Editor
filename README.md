@@ -1,3 +1,6 @@
-#Hed -- The Haskell Editor
+# hed
 
-A small project for developing an editor which could be highly hackable and solely developed in Haskell specially for Haskellers !!
+#Installation 
+To use this library, you should have `libtinfo` library installed
+run
+```$ sudo apt-get install libtinfo-dev```
