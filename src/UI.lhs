@@ -52,7 +52,7 @@
 >       let lineImg lStr = V.string (cont^.attrL) lStr
 >           coll = availWidth cont
 >           ss = concat $ adjustLength coll <$> R.lines  s
->       return $ def & imageL .~ (V.vertCat (lineImg.R.toString <$> ss))
+>       return $ emptyResult & imageL .~ (V.vertCat (lineImg.R.toString <$> ss))
 
 > drawTextObj::Bool->HT.TextObj-> Widget HT.Name
 > drawTextObj foc s = fattr ed
@@ -80,7 +80,7 @@
 > theMap = A.attrMap V.defAttr 
 >      [("edit", V.white `on` V.blue)
 >      ,("status", flip V.withStyle V.bold $V.white `on` V.black)
->      ,("command",def )        --V.white `on` V.red)
+>      ,("command",V.white `on` V.red)
 >      ,("focussed",V.white `on` V.blue)]
 
 > -- | convenience function to show cursor which currently have focus
