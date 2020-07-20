@@ -3,6 +3,6 @@
 # Installation 
 To use this library, you should have `libtinfo` library installed
 
-use
+run
 
 ```$ sudo apt-get install libtinfo-dev```
