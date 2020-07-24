@@ -53,15 +53,16 @@ applyEditorCommand e = case e of
 
 handleEditor::HT.EditorObj -> BrickEvent t t1 -> EventM n (Next HT.EditorObj)
 handleEditor st (VtyEvent (EvKey (KChar 'q') [MCtrl])) = halt st
-handleEditor st (VtyEvent (EvKey (KChar 'q') [MMeta])) = do  suspendAndResume (C.saveFile st) `seq` (return st)
-                                                             halt st
+handleEditor st (VtyEvent (EvKey (KChar 'q') [MMeta])) = do  
+  suspendAndResume ((C.saveFile st) `seq` (return st))
+  halt st
 handleEditor st (VtyEvent (EvKey (KChar 's') [MCtrl])) = suspendAndResume (C.saveFile st)
 handleEditor st (VtyEvent (EvKey  (KChar '\t') [])) = continue $ st & HT.focusRingL %~ F.focusNext
-handleEditor st (VtyEvent e) = case (F.focusGetCurrent $ st ^. HT.focusRingL) of 
+handleEditor st (VtyEvent e) = case F.focusGetCurrent $ st ^. HT.focusRingL of 
  Just HT.EditPad -> continue $ st & applyEditorCommand e
  Just HT.CommandPad -> continue $ case e of 
-                                   (EvKey KEnter []) -> let s =(st & (HT.commandObjL %~ (applyEdit e)))
-                                                        in s & CI.evalCommand st
-                                   _ -> st & (HT.commandObjL %~ (applyEdit e))
+   (EvKey KEnter []) -> let s =(st & (HT.commandObjL %~ (applyEdit e)))
+                          in s & CI.evalCommand st
+   _ -> st & (HT.commandObjL %~ (applyEdit e))
  _ {-Just HT.NoName-} -> continue st
 

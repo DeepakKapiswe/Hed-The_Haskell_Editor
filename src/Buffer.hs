@@ -14,10 +14,11 @@ emptyBuf = Buffer mempty mempty mempty mempty mempty
 getDefBufContents::Buffer a -> a
 getDefBufContents = (^. b1L)
 
-setDefBufContents::a-> Buffer a -> Buffer a
+-- | Takes an element and a Buffer and inserts that element in the first index of Buffer
+setDefBufContents:: a -> Buffer a -> Buffer a
 setDefBufContents a = (& b1L .~ a)
 
-setBufnContents::Int->a->Buffer a ->Buffer a
+setBufnContents:: Int -> a -> Buffer a -> Buffer a
 setBufnContents n a | n==1 = (& b1L.~ a)
                     | n==2 = (& b2L.~ a)
                     | n==3 = (& b3L.~ a)
