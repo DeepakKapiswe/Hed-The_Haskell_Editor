@@ -1,6 +1,5 @@
 module Main where
 
-
 import qualified HedTypes as HT
 import qualified EditorObj as EO
 import qualified TextObj as TO
@@ -30,6 +29,9 @@ app = App
   , appAttrMap = const UI.theMap
   }
 
+-- | Takes a file name and either opens that file for editing
+-- or creates a new blank file if that file is not present  
+hed :: FilePath -> IO HT.EditorObj
 hed f = do
  file <-safeLoadFile f
  let contents = case file of 
@@ -37,5 +39,7 @@ hed f = do
         Right x -> x
  defaultMain app (EO.emptyEO & (HT.editTextObjL.HT.nameL .~ HT.EditPad).(HT.editTextObjL .~ (TO.makeTO contents)).(HT.infoL .~ f))
 
+-- | Takes a FilePath and returns either its contents if file is present
+-- or an IOException if not
 safeLoadFile :: FilePath -> IO (Either IOException String)
 safeLoadFile f = (Right <$> readFile f) `catch` (\ e -> pure (Left e) )

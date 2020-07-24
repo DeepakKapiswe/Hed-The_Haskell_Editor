@@ -34,7 +34,8 @@ data EditorObj = EO { focusRing::F.FocusRing Name
                     }
 
 data Buffer a = Buffer {b1::a,b2::a,b3::a,b4::a,b5::a}
-
+  deriving (Show)
+  
 suffixLenses ''TextObj
 suffixLenses ''EditorObj
 suffixLenses ''Buffer

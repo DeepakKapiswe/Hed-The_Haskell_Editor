@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4c4ff64284e603fcffe9c3be2fbea82542817bc2257e3ce834851afa06e36c53
+-- hash: c821c32cbfd839d8d3a5c8d38e00875df99436dc3053f9fbde796f8423b04001
 
 name:           hed
 version:        0.1.0.0
@@ -33,7 +33,6 @@ library
       EditorObj
       Event
       HedTypes
-      Lib
       SuffixLenses
       TextObj
       UI

@@ -11,16 +11,17 @@ import Data.Maybe   (fromMaybe)
 import Data.Char   (isPrint,isSpace,isControl)
 import qualified Data.Text as T
 
+-- | empty TextObj
 emptyTO::TextObj
 emptyTO = TO mempty mempty mempty mempty NoName
 
 -- | creates a TextObj from the given String 
 makeTO::String->TextObj
-makeTO s = emptyTO & (rightOfCL .~r).(belowL .~b)
+makeTO s = emptyTO & (rightOfCL .~ r).(belowL .~ b)
  where y = R.fromString s
        (r,b) = R.splitAtLine 1 y
 
--- | Gives the text from the  Textobj in Text form
+-- | Gives the text from the Textobj in Text form
 getText::TextObj -> T.Text
 getText = R.toText.getYiString
 
@@ -88,14 +89,14 @@ moveCursor (nRow,nCol) tObj =
 
 -----------------------------------------------------------------------------------------
 
+-- | Takes a TextObj and returns the current line
 currentLine::TextObj-> R.YiString
 currentLine t = (t ^.leftOfCL) <> (t ^.rightOfCL)
 
-breakLine::TextObj ->TextObj
-breakLine tObj = tObj & (aboveL %~ (<> ((tObj ^.leftOfCL) `R.snoc` '\n' )))
-                      & (leftOfCL .~ mempty)
+breakLine :: TextObj ->TextObj
+breakLine t = t & (aboveL %~ (<> ((t ^.leftOfCL) `R.snoc` '\n' ))) & (leftOfCL .~ mempty)
 
-insertChar::Char->TextObj ->TextObj
+insertChar :: Char -> TextObj -> TextObj
 insertChar = \case
  '\n' -> breakLine
  x |isPrint x -> leftOfCL %~ (<> R.singleton x)
@@ -149,7 +150,7 @@ newLine = R.singleton '\n'
 deleteCurrLine::TextObj ->TextObj
 deleteCurrLine = deleteChar.killToEOL.killToBOL
 
--- | moves cursor to End of current Line
+-- | moves cursor to Begining of current Line
 gotoBOL::TextObj -> TextObj
 gotoBOL t= t & (leftOfCL .~ mempty).(rightOfCL %~ ( t ^. leftOfCL <>))
 
@@ -225,11 +226,11 @@ delPrevnChars n tObj = let (discarded,rest) = R.splitAt n (tObj ^. aboveL <> tOb
                        in  (discarded,tObj & (leftOfCL .~ left').(aboveL .~ above'))
 
 
--- | Gives current word empty if cursor is at space
+-- | Returns the either current word or empty if cursor is at space
 getCurrWord::TextObj -> R.YiString
-getCurrWord t = let (l,r) = (R.takeWhileEnd p (t ^.leftOfCL),R.takeWhile p (t ^.rightOfCL))
-                    p  = \x->not (isSpace x ||isControl x)
-                in l<>r
+getCurrWord t = let (l,r) = (R.takeWhileEnd p (t ^.leftOfCL), R.takeWhile p (t ^.rightOfCL))
+                    p  = \x -> not (isSpace x || isControl x)
+                in l <> r
 
 getTillEOL::TextObj -> R.YiString
 getTillEOL = fromMaybe mempty .R.init.(^.rightOfCL)
