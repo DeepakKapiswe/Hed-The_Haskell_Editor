@@ -10,6 +10,7 @@ import Control.Lens
 import Graphics.Vty
 import qualified Brick.Focus as F
 import Control.Monad
+import Control.Monad.IO.Class
 
 handle:: HT.TextObj -> BrickEvent t t1 -> EventM n (Next HT.TextObj)
 handle st (VtyEvent (EvKey (KChar 'q') [])) = halt st
@@ -53,8 +54,8 @@ applyEditorCommand e = case e of
 
 handleEditor::HT.EditorObj -> BrickEvent t t1 -> EventM n (Next HT.EditorObj)
 handleEditor st (VtyEvent (EvKey (KChar 'q') [MCtrl])) = halt st
-handleEditor st (VtyEvent (EvKey (KChar 'q') [MMeta])) = do  
-  suspendAndResume ((C.saveFile st) `seq` (return st))
+handleEditor st (VtyEvent (EvKey (KChar 'q') [MMeta])) = do 
+  liftIO $ C.saveFile st 
   halt st
 handleEditor st (VtyEvent (EvKey (KChar 's') [MCtrl])) = suspendAndResume (C.saveFile st)
 handleEditor st (VtyEvent (EvKey  (KChar '\t') [])) = continue $ st & HT.focusRingL %~ F.focusNext
